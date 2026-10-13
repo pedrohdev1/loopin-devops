@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+set -eu
+GRADLE_VERSION="8.14.3"
+DIST_ROOT="${GRADLE_USER_HOME:-$HOME/.gradle}/loopin-distributions"
+GRADLE_HOME="$DIST_ROOT/gradle-$GRADLE_VERSION"
+if [ ! -x "$GRADLE_HOME/bin/gradle" ]; then
+  mkdir -p "$DIST_ROOT"
+  ZIP="$DIST_ROOT/gradle-$GRADLE_VERSION-bin.zip"
+  echo "[Loopin] Baixando Gradle $GRADLE_VERSION pela primeira vez..."
+  if command -v curl >/dev/null 2>&1; then
+    curl -fL "https://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip" -o "$ZIP"
+  else
+    echo "curl nao encontrado; instale curl ou abra o projeto no Android Studio." >&2
+    exit 1
+  fi
+  unzip -q -o "$ZIP" -d "$DIST_ROOT"
+  rm -f "$ZIP"
+fi
+exec "$GRADLE_HOME/bin/gradle" "$@"

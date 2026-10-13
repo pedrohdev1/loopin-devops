@@ -1,0 +1,15 @@
+.git
+.github
+.idea
+**/.idea
+.env
+.env.*
+**/local.properties
+android/
+**/.gradle
+**/build
+**/target
+*.zip
+*.apk
+*.aab
+*.log

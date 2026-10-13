@@ -1,0 +1,42 @@
+
+### 1. Criar o primeiro lider (executar apenas uma vez)
+POST http://localhost:8080/auth/bootstrap-lider
+Content-Type: application/json
+X-Bootstrap-Token: SUBSTITUA_POR_TOKEN_DE_BOOTSTRAP_LOCAL
+
+{
+  "nome": "Lider Loopin",
+  "email": "lider@loopin.local",
+  "senha": "SUBSTITUA_POR_SENHA_DE_TESTE"
+}
+
+### 2. Login do lider
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "lider@loopin.local",
+  "senha": "SUBSTITUA_POR_SENHA_DE_TESTE"
+}
+
+### 3. Registrar operador (perfil sempre OPERADOR)
+POST http://localhost:8080/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Joao",
+  "email": "joao@loopin.com",
+  "senha": "SUBSTITUA_POR_SENHA_DE_TESTE"
+}
+
+### 4. Login de operador
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao@loopin.com",
+  "senha": "SUBSTITUA_POR_SENHA_DE_TESTE"
+}
+
+### 5. Verificar saude da API
+GET http://localhost:8080/health

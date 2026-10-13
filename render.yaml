@@ -1,0 +1,56 @@
+# Render Blueprint: cria dois serviços gratuitos separados para demonstração.
+# As credenciais reais são configuradas no painel do Render; nunca as grave aqui.
+services:
+  - type: web
+    name: loopin-staging
+    runtime: docker
+    plan: free
+    region: ohio
+    branch: main
+    rootDir: .
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: off
+    healthCheckPath: /health
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_BOOTSTRAP_TOKEN
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: JWT_EXPIRATION_MS
+        value: "3600000"
+      - key: OPENROUTER_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: OPENROUTER_MODEL
+        value: openrouter/free
+
+  - type: web
+    name: loopin-production
+    runtime: docker
+    plan: free
+    region: ohio
+    branch: main
+    rootDir: .
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: off
+    healthCheckPath: /health
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_BOOTSTRAP_TOKEN
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: JWT_EXPIRATION_MS
+        value: "3600000"
+      - key: OPENROUTER_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: OPENROUTER_MODEL
+        value: openrouter/free

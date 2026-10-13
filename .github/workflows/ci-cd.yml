@@ -1,0 +1,119 @@
+name: Loopin CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: loopin-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build, test and build Docker image
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand(\"ping\").ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      MONGODB_URI: mongodb://localhost:27017/loopin
+      JWT_EXPIRATION_MS: 3600000
+      APP_BOOTSTRAP_TOKEN: ""
+      OPENROUTER_API_KEY: ""
+      OPENROUTER_MODEL: openrouter/free
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Generate temporary JWT secret for tests
+        shell: bash
+        run: echo "JWT_SECRET=$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+
+      - name: Run automated tests
+        shell: bash
+        run: bash ./mvnw --batch-mode --no-transfer-progress test
+
+      - name: Build Docker image
+        run: docker build --pull --tag loopin-backend:${{ github.sha }} .
+
+  deploy-staging:
+    name: Deploy and verify staging
+    needs: build-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_DEPLOY == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger staging deploy and verify the new commit
+        shell: bash
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.RENDER_STAGING_DEPLOY_HOOK_URL }}
+          SERVICE_URL: ${{ vars.RENDER_STAGING_URL }}
+          EXPECTED_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$DEPLOY_HOOK_URL" || -z "$SERVICE_URL" ]]; then
+            echo "::error::Configure secret RENDER_STAGING_DEPLOY_HOOK_URL and variable RENDER_STAGING_URL before deploying."
+            exit 1
+          fi
+          curl --fail --silent --show-error --request POST "$DEPLOY_HOOK_URL" >/dev/null
+          for attempt in $(seq 1 60); do
+            response="$(curl --fail --silent --show-error --max-time 15 "$SERVICE_URL/health" 2>/dev/null || true)"
+            if printf '%s' "$response" | grep -Fq "\"version\":\"$EXPECTED_COMMIT\""; then
+              echo "Staging deploy verified for commit $EXPECTED_COMMIT."
+              exit 0
+            fi
+            echo "Waiting for staging to serve commit $EXPECTED_COMMIT ($attempt/60)..."
+            sleep 10
+          done
+          echo "::error::Staging did not serve the expected commit within ten minutes."
+          exit 1
+
+  deploy-production:
+    name: Deploy and verify production
+    needs: deploy-staging
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_DEPLOY == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger production deploy and verify the new commit
+        shell: bash
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.RENDER_PRODUCTION_DEPLOY_HOOK_URL }}
+          SERVICE_URL: ${{ vars.RENDER_PRODUCTION_URL }}
+          EXPECTED_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$DEPLOY_HOOK_URL" || -z "$SERVICE_URL" ]]; then
+            echo "::error::Configure secret RENDER_PRODUCTION_DEPLOY_HOOK_URL and variable RENDER_PRODUCTION_URL before deploying."
+            exit 1
+          fi
+          curl --fail --silent --show-error --request POST "$DEPLOY_HOOK_URL" >/dev/null
+          for attempt in $(seq 1 60); do
+            response="$(curl --fail --silent --show-error --max-time 15 "$SERVICE_URL/health" 2>/dev/null || true)"
+            if printf '%s' "$response" | grep -Fq "\"version\":\"$EXPECTED_COMMIT\""; then
+              echo "Production deploy verified for commit $EXPECTED_COMMIT."
+              exit 0
+            fi
+            echo "Waiting for production to serve commit $EXPECTED_COMMIT ($attempt/60)..."
+            sleep 10
+          done
+          echo "::error::Production did not serve the expected commit within ten minutes."
+          exit 1
