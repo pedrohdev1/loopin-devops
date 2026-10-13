@@ -1,0 +1,36 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Java / Maven
+/target/
+**/target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Android / Gradle
+**/local.properties
+**/.gradle/
+**/build/
+**/.kotlin/
+**/.externalNativeBuild/
+**/.cxx/
+
+# IDE and OS files
+.idea/
+**/.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Generated artifacts
+*.log
+*.zip
+*.apk
+*.aab
