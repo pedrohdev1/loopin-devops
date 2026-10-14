@@ -1,167 +1,187 @@
-# Loopin Backend — Sprint 2 FIAP
+# Projeto - Loopin ESG: Cidades ESG Inteligentes
 
-Backend REST da aplicação Loopin, adaptado aos requisitos de gestão de estratégias, ideias de inovação, projetos, relatórios e apoio à priorização com IA.
+Plataforma ESG para apoiar a gestão de estratégias, ideias de inovação, projetos sustentáveis e indicadores de resultados. Este repositório reúne o backend Java Spring, o aplicativo Android, a infraestrutura Docker e a automação CI/CD.
 
-## Tecnologias
+**Integrante(s):** preencher nome(s) completo(s) antes da entrega.
 
-- Java 17+
-- Spring Boot / Spring Web MVC
-- Spring Security com JWT stateless
-- BCrypt para hash de senha
-- Spring Data MongoDB
-- Bean Validation
-- OpenRouter Chat Completions para pontuação assistida por IA
-- Maven Wrapper
+## Como executar localmente com Docker
 
-## Pré-requisitos
+### Pré-requisitos
 
-1. Java 17 ou superior.
-2. MongoDB acessível local ou remotamente.
-3. Uma chave OpenRouter para usar o endpoint de IA; os outros módulos funcionam sem ela.
-4. Internet na primeira compilação, caso as dependências ainda não estejam no cache Maven.
+- Docker Desktop com Docker Compose v2.
+- Git para clonar o repositório.
+- Porta local 8080 livre.
 
-## Configuração por variáveis de ambiente
+### 1. Preparar as variáveis de ambiente
 
-| Variável | Padrão | Uso |
-|---|---|---|
-| `MONGODB_URI` | `mongodb://localhost:27017/loopin` | URI do MongoDB |
-| `JWT_SECRET` | Obrigatória; sem padrão no código | Segredo Base64 que assina JWT. Configure fora do código em todos os ambientes. |
-| `JWT_EXPIRATION_MS` | `3600000` | Validade do token em milissegundos |
-| `APP_BOOTSTRAP_TOKEN` | vazio | Token de uso único para criar o primeiro líder |
-| `CORS_ALLOWED_ORIGINS` | `http://localhost:3000,http://localhost:5173` | Origens web liberadas para CORS |
-| `OPENROUTER_API_KEY` | vazio | Chave da API de IA |
-| `OPENROUTER_BASE_URL` | `https://openrouter.ai/api/v1` | URL do OpenRouter |
-| `OPENROUTER_MODEL` | `openrouter/free` | Modelo/roteador para pontuar ideias |
+Na raiz do projeto, copie o arquivo de exemplo:
 
-O backend exige `JWT_SECRET` fornecida por variável de ambiente; não há mais um segredo padrão embutido. Gere uma chave Base64 aleatória de pelo menos 32 bytes para cada ambiente e nunca comite um segredo real de JWT, inicialização ou IA no código ou no ZIP.
+~~~powershell
+Copy-Item .env.example .env
+~~~
 
-### MongoDB local (opcional via Docker)
+Gere um segredo JWT local de 32 bytes e configure-o no arquivo .env. No PowerShell, pode gerar o valor com:
 
-Se você tiver Docker instalado, pode iniciar uma instância local de desenvolvimento a partir da raiz do projeto:
-
-```bash
-docker compose up -d mongodb
-```
-
-O serviço publica a porta `27017` e usa um volume Docker para persistir os dados. Essa configuração é somente para desenvolvimento local; não exponha esse MongoDB sem autenticação à internet. Se você já tem MongoDB instalado ou usa Atlas, configure `MONGODB_URI` para a sua instância.
-
-### Windows / PowerShell
-
-Na raiz do projeto, configure os valores de desenvolvimento (ajuste a URI se o MongoDB não estiver local):
-
-```powershell
-$env:MONGODB_URI = "mongodb://localhost:27017/loopin"
+~~~powershell
 $bytes = New-Object byte[] 32
-[System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
-$env:JWT_SECRET = [Convert]::ToBase64String($bytes)
-$env:APP_BOOTSTRAP_TOKEN = "troque-por-um-token-de-inicializacao-longo"
-$env:OPENROUTER_API_KEY = "sua-chave-openrouter"
-$env:OPENROUTER_MODEL = "openrouter/free"
-.\mvnw.cmd spring-boot:run
-```
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$rng.GetBytes($bytes)
+$jwt = [Convert]::ToBase64String($bytes)
+$rng.Dispose()
+"JWT_SECRET=$jwt"
+~~~
 
-No IntelliJ IDEA, abra a pasta como projeto Maven, selecione JDK 17+ em **Project Structure** e informe as variáveis de ambiente na configuração de execução de `LoopinBackendApplication`.
+Copie o valor gerado para JWT_SECRET no arquivo .env. Substitua também APP_BOOTSTRAP_TOKEN por um valor local longo e aleatório. Não versione o arquivo .env, senhas, tokens ou chaves de API. O arquivo .env.example contém apenas valores ilustrativos.
 
-## Primeiro acesso
+### 2. Construir e iniciar os serviços
 
-O cadastro público sempre cria um usuário `OPERADOR`; o perfil informado pelo cliente é ignorado. Para cadastrar a liderança inicial:
+~~~powershell
+docker compose up --build -d
+docker compose ps
+~~~
 
-1. Inicie a aplicação com `APP_BOOTSTRAP_TOKEN` configurado.
-2. Chame `POST /auth/bootstrap-lider` com o mesmo valor no cabeçalho `X-Bootstrap-Token`.
-3. Faça login em `POST /auth/login` com a conta criada.
-4. Cadastre uma estratégia em `POST /estrategias`. A nova estratégia se torna vigente e a anterior, se existir, vai para o histórico.
-5. Crie gestores em `POST /usuarios/administracao` usando o JWT do líder.
-6. Operadores podem se cadastrar em `POST /usuarios`.
+O Compose inicia dois serviços: a API Spring Boot (app) e o MongoDB (mongodb). O banco fica em uma rede Docker interna e seus dados são preservados no volume nomeado loopin-devops-mongodb-data. Por padrão, a API é publicada somente em 127.0.0.1:8080.
 
-O bootstrap só funciona quando `APP_BOOTSTRAP_TOKEN` está definido e ainda não existe líder cadastrado. Depois do primeiro líder, a rota não cria outra conta de liderança.
+### 3. Verificar a aplicação
 
-### Exemplo: cadastrar o líder inicial
+~~~powershell
+Invoke-RestMethod http://localhost:8080/health
+docker compose logs --tail=100 app
+docker compose logs --tail=100 mongodb
+~~~
 
-`POST http://localhost:8080/auth/bootstrap-lider`
+A resposta de saúde esperada contém status UP. Para parar os serviços:
 
-Cabeçalhos:
+~~~powershell
+docker compose down
+~~~
 
-```http
-Content-Type: application/json
-X-Bootstrap-Token: troque-por-um-token-de-inicializacao-longo
-```
+Para apagar também o volume local de dados (ação destrutiva, somente para ambiente descartável):
 
-Corpo:
+~~~powershell
+docker compose down --volumes
+~~~
 
-```json
-{
-  "nome": "Líder Loopin",
-  "email": "lider@loopin.local",
-  "senha": "troque-esta-senha"
-}
-```
+### Primeiro acesso
 
-### Exemplo: login
+A aplicação possui o endpoint POST /auth/bootstrap-lider, protegido pelo cabeçalho X-Bootstrap-Token e pela variável APP_BOOTSTRAP_TOKEN. Ele só deve ser usado para criar a primeira conta de liderança, enquanto ainda não existir um líder. Consulte docs/ENDPOINTS.md para o contrato dos endpoints. Configure uma credencial exclusiva para cada ambiente e não compartilhe tokens reais.
 
-`POST http://localhost:8080/auth/login`
+## Pipeline CI/CD
 
-```json
-{
-  "email": "lider@loopin.local",
-  "senha": "troque-esta-senha"
-}
-```
+Ferramenta: GitHub Actions. O workflow está em .github/workflows/ci-cd.yml.
 
-A resposta traz `token`, `id`, `nome`, `email`, `perfil` e `tipoToken`. Em rotas privadas, envie `Authorization: Bearer <token>`.
+- Disparadores: push para a branch main, pull request direcionado a main e execução manual (workflow_dispatch).
+- Build e testes: prepara Java 17, inicia um MongoDB efêmero para os testes e executa o Maven Wrapper com os testes existentes.
+- Imagem Docker: constrói a imagem versionada pelo SHA do commit.
+- Teste de orquestração: inicia os serviços do docker-compose.yml usando a imagem construída, verifica o endpoint /health da API e executa um ping no MongoDB. O Compose é encerrado no final do job.
+- Deploy de staging: em push para main, quando a variável ENABLE_DEPLOY é igual a true, chama o Deploy Hook do Render e espera o endpoint /health informar o SHA do commit enviado.
+- Deploy de produção: só inicia após a verificação de staging passar; chama o Deploy Hook de produção e valida o SHA esperado no endpoint /health.
 
-## Regras de acesso
+### Configurações de CI/CD no GitHub
 
-- **OPERADOR:** consulta estratégias; cadastra e consulta suas próprias ideias; edita ou exclui somente ideias próprias ainda pendentes.
-- **GESTOR:** consulta e avalia ideias; prioriza/aprova/rejeita; gerencia projetos; registra resultados; executa pontuação assistida por IA.
-- **LIDER:** gerencia estratégias e contas de usuários; consulta projetos e histórico de estratégias; visualiza relatórios/dashboard.
-- Todos os perfis autenticados podem consultar estratégias.
+Secrets do repositório (não são valores públicos):
 
-O perfil é lido pelo backend a partir da conta associada ao JWT. O cliente não pode escolher seu próprio nível de acesso.
+- RENDER_STAGING_DEPLOY_HOOK_URL
+- RENDER_PRODUCTION_DEPLOY_HOOK_URL
 
-## Endpoints
+Variables do repositório:
 
-A especificação completa com métodos, perfis, exemplos de payload e respostas está em [`docs/ENDPOINTS.md`](docs/ENDPOINTS.md).
+- ENABLE_DEPLOY=true
+- RENDER_STAGING_URL=https://loopin-staging-twj3.onrender.com
+- RENDER_PRODUCTION_URL=https://loopin-production.onrender.com
 
-| Módulo | Rotas |
-|---|---|
-| Saúde | `GET /health` |
-| Autenticação | `/auth` |
-| Usuários | `/usuarios` |
-| Estratégias e histórico | `/estrategias` |
-| Ideias | `/ideias` |
-| Projetos e resultados | `/projetos` |
-| Dashboard | `/relatorios/dashboard` |
-| IA | `/ia/ideias/{id}/pontuar` |
+Não coloque os valores dos Deploy Hooks em arquivos ou documentação. Eles permitem acionar implantações e devem permanecer secretos.
 
-## Regras de negócio e métricas
+### Evidências do pipeline
 
-- Existe uma estratégia vigente por vez. Criar outra encerra a anterior e registra o evento no histórico. Estratégias com ideias/projetos vinculados não podem ser excluídas, preservando referências históricas.
-- Ideias novas são vinculadas automaticamente à estratégia vigente; o cliente não informa livremente o dono, status ou prioridade inicial.
-- Um projeto deve referenciar a estratégia vigente. Se for vinculado a uma ideia, ela deve estar aprovada.
-- Resultados são eventos incrementais anexados ao projeto: `investimentoAdicional` e `lucroObtido` do evento são somados aos totais do projeto. O PUT de projeto preserva os totais financeiros; use o endpoint de resultados para lançar novas medições.
-- O ROI do dashboard é calculado como `lucro obtido / investimento total × 100`. Investimento zero retorna ROI `0.00` para evitar divisão por zero.
-- A pontuação da IA é uma recomendação; aprovação e decisão final continuam com o gestor.
+- Execução #5, incluindo build, testes, smoke test do Docker Compose e deploy sequencial: https://github.com/pedrohdev1/loopin-devops/actions/runs/38500981672
+- Execução #4, validação inicial do build, testes e deploys: https://github.com/pedrohdev1/loopin-devops/actions/runs/38499585504
+- Workflow versionado: https://github.com/pedrohdev1/loopin-devops/blob/main/.github/workflows/ci-cd.yml
 
-## Integração com IA
+## Containerização
 
-`POST /ia/ideias/{id}/pontuar` chama a API OpenRouter no formato Chat Completions, solicita pontuação de 0 a 100, prioridade sugerida e justificativa, salva a recomendação na ideia e a devolve na resposta. O padrão `openrouter/free` roteia para um modelo gratuito disponível no OpenRouter. A disponibilidade e os limites podem variar; configure `OPENROUTER_MODEL` sem recompilar.
+### Dockerfile
 
-Sem `OPENROUTER_API_KEY`, o endpoint retorna HTTP 503 com instruções de configuração; os outros módulos continuam funcionando. Nunca coloque a chave no código-fonte.
+O Dockerfile utiliza build em múltiplas etapas. Primeiro compila o projeto com Maven e Java 17; depois usa uma imagem JRE de runtime, instala curl para health check, cria um usuário sem privilégios de root e executa o JAR. A imagem declara o endpoint de saúde e usa opções de JVM compatíveis com memória limitada.
 
-## Testes e build
+Conteúdo atual do Dockerfile:
 
-Windows:
+~~~dockerfile
+# Build the Spring Boot application in a dedicated stage.
+FROM maven:3.9.16-eclipse-temurin-17 AS build
+WORKDIR /workspace
+COPY pom.xml .
+COPY src ./src
+RUN mvn --batch-mode --no-transfer-progress -DskipTests package
 
-```powershell
-.\mvnw.cmd test
-.\mvnw.cmd -DskipTests package
-```
+# Keep the runtime image smaller and run as a non-root user.
+FROM eclipse-temurin:17-jre
+RUN apt-get update \\
+    && apt-get install -y --no-install-recommends curl \\
+    && rm -rf /var/lib/apt/lists/* \\
+    && useradd --system --uid 10001 --create-home appuser
+WORKDIR /app
+COPY --from=build /workspace/target/loopin-backend-0.0.1-SNAPSHOT.jar /app/app.jar
+USER 10001:10001
+EXPOSE 8080
+ENV PORT=8080
+ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=45.0 -XX:+UseSerialGC"
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \\
+    CMD curl --fail --silent http://127.0.0.1:${PORT}/health || exit 1
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+~~~
 
-Linux/macOS:
+### Estratégias adotadas
 
-```bash
-./mvnw test
-./mvnw -DskipTests package
-```
+- Multi-stage build para separar compilação e execução.
+- Runtime baseado em JRE, sem ferramentas de compilação.
+- Processo em usuário não-root.
+- Health check HTTP da API.
+- Configuração externa por variáveis de ambiente.
+- Compose com rede bridge dedicada, MongoDB sem porta publicada para o host, volume persistente e dependência condicionada à saúde do banco.
+- .dockerignore para não copiar arquivos locais, segredos, artefatos de build ou o aplicativo Android para a imagem de backend.
 
-O teste de inicialização original é básico. Antes da apresentação, execute testes de integração com MongoDB e teste autenticação/permissões com os três perfis.
+### Comandos úteis
+
+~~~powershell
+docker build -t loopin-backend:local .
+docker compose up --build -d
+docker compose ps
+docker compose logs -f app
+docker compose down
+~~~
+
+## Prints do funcionamento
+
+O diretório docs/evidencias contém capturas reais do painel do Render e dos logs de conexão ao MongoDB Atlas registrados durante a validação inicial. Para a validação mais recente do workflow, consulte a execução #5 do GitHub Actions, que mostra os resultados de build, testes, inicialização via Compose, staging e produção.
+
+- Pipeline completo: https://github.com/pedrohdev1/loopin-devops/actions/runs/38500981672
+- Staging: https://loopin-staging-twj3.onrender.com/health
+- Produção: https://loopin-production.onrender.com/health
+
+Os serviços gratuitos do Render podem entrar em repouso após inatividade; a primeira chamada seguinte pode levar mais tempo. O endereço /health comprova a disponibilidade básica do backend e a versão implantada. A conexão com o MongoDB foi verificada também nos logs do serviço.
+
+## Tecnologias utilizadas
+
+- Java 17.
+- Spring Boot, Spring Web MVC, Spring Security, JWT e Bean Validation.
+- Spring Data MongoDB e MongoDB.
+- Maven Wrapper.
+- Docker, Docker Compose e imagem Eclipse Temurin.
+- GitHub e GitHub Actions.
+- Render para os ambientes de staging e produção.
+- MongoDB Atlas para o banco remoto.
+- Kotlin, Jetpack Compose, Retrofit e Gradle no aplicativo Android.
+- OpenRouter como integração opcional de pontuação assistida por IA.
+
+## Checklist de entrega
+
+- [x] Projeto compactado em ZIP com estrutura organizada (conferir pacote final).
+- [x] Dockerfile funcional, imagem construída pelo pipeline.
+- [x] docker-compose.yml com aplicação, banco, volume, variáveis de ambiente e rede.
+- [x] Pipeline com build, testes automatizados e deploy sequencial em staging e produção.
+- [ ] README com instruções e evidências (seção preparada; revisar o campo de integrantes antes de entregar).
+- [ ] Documentação técnica com evidências (PDF ou PPT) anexada à entrega.
+- [x] Deploy validado nos ambientes staging e produção pelo GitHub Actions.
+
+O checklist deve ser atualizado para refletir a revisão final e anexado ao final do PDF ou do README, conforme a orientação da atividade.
