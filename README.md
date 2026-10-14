@@ -116,9 +116,9 @@ RUN mvn --batch-mode --no-transfer-progress -DskipTests package
 
 # Keep the runtime image smaller and run as a non-root user.
 FROM eclipse-temurin:17-jre
-RUN apt-get update \\
-    && apt-get install -y --no-install-recommends curl \\
-    && rm -rf /var/lib/apt/lists/* \\
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
     && useradd --system --uid 10001 --create-home appuser
 WORKDIR /app
 COPY --from=build /workspace/target/loopin-backend-0.0.1-SNAPSHOT.jar /app/app.jar
@@ -126,7 +126,7 @@ USER 10001:10001
 EXPOSE 8080
 ENV PORT=8080
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=45.0 -XX:+UseSerialGC"
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \\
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
     CMD curl --fail --silent http://127.0.0.1:${PORT}/health || exit 1
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 ~~~
@@ -153,7 +153,7 @@ docker compose down
 
 ## Prints do funcionamento
 
-O diretório docs/evidencias contém capturas reais do painel do Render e dos logs de conexão ao MongoDB Atlas registrados durante a validação inicial. Para a validação mais recente do workflow, consulte a execução #5 do GitHub Actions, que mostra os resultados de build, testes, inicialização via Compose, staging e produção.
+As capturas reais dos painéis do Render e dos logs de conexão ao MongoDB Atlas estão incluídas no ZIP final, no diretório docs/evidencias. Para a validação mais recente do workflow, consulte a execução #5 do GitHub Actions, que mostra os resultados de build, testes, inicialização via Compose, staging e produção.
 
 - Pipeline completo: https://github.com/pedrohdev1/loopin-devops/actions/runs/38500981672
 - Staging: https://loopin-staging-twj3.onrender.com/health
