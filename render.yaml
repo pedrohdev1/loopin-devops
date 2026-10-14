@@ -18,7 +18,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: APP_BOOTSTRAP_TOKEN
-        sync: false
+        generateValue: true
       - key: OPENROUTER_API_KEY
         sync: false
       - key: JWT_EXPIRATION_MS
@@ -45,7 +45,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: APP_BOOTSTRAP_TOKEN
-        sync: false
+        generateValue: true
       - key: OPENROUTER_API_KEY
         sync: false
       - key: JWT_EXPIRATION_MS
