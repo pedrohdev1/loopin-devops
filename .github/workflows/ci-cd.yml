@@ -18,15 +18,17 @@ jobs:
   build-test:
     name: Build, test and build Docker image
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       mongodb:
         image: mongo:7.0
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "mongosh --quiet --eval 'db.adminCommand(\\"ping\\").ok'"
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok'"
           --health-interval 10s
           --health-timeout 5s
+          --health-start-period 15s
           --health-retries 10
     env:
       MONGODB_URI: mongodb://localhost:27017/loopin
@@ -70,6 +72,7 @@ jobs:
     needs: build-test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_DEPLOY == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - name: Trigger staging deploy and verify the new commit
         shell: bash
@@ -101,6 +104,7 @@ jobs:
     needs: deploy-staging
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.ENABLE_DEPLOY == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - name: Trigger production deploy and verify the new commit
         shell: bash
