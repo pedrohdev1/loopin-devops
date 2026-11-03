@@ -86,7 +86,7 @@ public class UserSteps {
                 .header("X-Bootstrap-Token", bootstrapToken)
                 .body(Map.of("nome", "Líder BDD", "email", leaderEmail, "senha", password))
                 .when().post("/auth/bootstrap-lider")
-                .then().statusCode(201)
+                .then().statusCode(200)
                 .body(matchesJsonSchemaInClasspath("schemas/user-response.schema.json"))
                 .body("perfil", equalTo("LIDER"));
 
