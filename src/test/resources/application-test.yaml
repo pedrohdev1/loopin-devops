@@ -1,0 +1,10 @@
+spring:
+  mongodb:
+    uri: mongodb://127.0.0.1:27017/loopin_test
+
+jwt:
+  secret: loopin-bdd-test-secret-key-32-bytes-minimum
+  expiration-ms: 3600000
+
+app:
+  bootstrap-token: ""
