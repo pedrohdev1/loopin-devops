@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "estrategiaId",
+      "data",
+      "categoria",
+      "campanha",
+      "vigente",
+      "operacao",
+      "registradoEm",
+      "alteradoPor"
+    ],
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "estrategiaId": {
+        "type": "string"
+      },
+      "data": {
+        "type": "string",
+        "format": "date"
+      },
+      "categoria": {
+        "type": "string"
+      },
+      "campanha": {
+        "type": "string"
+      },
+      "vigente": {
+        "type": "boolean"
+      },
+      "operacao": {
+        "type": "string"
+      },
+      "registradoEm": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "alteradoPor": {
+        "type": "string"
+      }
+    },
+    "additionalProperties": false
+  }
+}

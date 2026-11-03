@@ -1,0 +1,132 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "nome",
+      "descricao",
+      "etapa",
+      "status",
+      "investimento",
+      "lucroObtido",
+      "prazo",
+      "aumentoProdutividadePercentual",
+      "progressoPercentual",
+      "estrategiaId",
+      "ideiaId",
+      "gestorResponsavelId",
+      "criadoEm",
+      "atualizadoEm",
+      "resultados"
+    ],
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "nome": {
+        "type": "string"
+      },
+      "descricao": {
+        "type": "string"
+      },
+      "etapa": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string"
+      },
+      "investimento": {
+        "type": "number"
+      },
+      "lucroObtido": {
+        "type": "number"
+      },
+      "prazo": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "format": "date"
+      },
+      "aumentoProdutividadePercentual": {
+        "type": "number"
+      },
+      "progressoPercentual": {
+        "type": "integer"
+      },
+      "estrategiaId": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "ideiaId": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "gestorResponsavelId": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "criadoEm": {
+        "type": "string"
+      },
+      "atualizadoEm": {
+        "type": "string"
+      },
+      "resultados": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "data",
+            "descricao",
+            "investimentoAdicional",
+            "lucroObtido",
+            "aumentoProdutividadePercentual",
+            "progressoPercentual"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "data": {
+              "type": "string",
+              "format": "date"
+            },
+            "descricao": {
+              "type": "string"
+            },
+            "investimentoAdicional": {
+              "type": "number"
+            },
+            "lucroObtido": {
+              "type": "number"
+            },
+            "aumentoProdutividadePercentual": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "progressoPercentual": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}

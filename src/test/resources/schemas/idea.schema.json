@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "id",
+    "titulo",
+    "descricao",
+    "status",
+    "prioridade",
+    "estrategiaId",
+    "usuarioId",
+    "dataCriacao",
+    "pontuacaoIa",
+    "justificativaIa",
+    "comentarioGestor"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "titulo": {
+      "type": "string"
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "prioridade": {
+      "type": "string"
+    },
+    "estrategiaId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "usuarioId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dataCriacao": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date"
+    },
+    "pontuacaoIa": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "justificativaIa": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "comentarioGestor": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

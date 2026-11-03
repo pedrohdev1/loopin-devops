@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "ideiaId",
+    "pontuacao",
+    "prioridadeSugerida",
+    "justificativa",
+    "modelo"
+  ],
+  "properties": {
+    "ideiaId": {
+      "type": "string"
+    },
+    "pontuacao": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "prioridadeSugerida": {
+      "type": "string",
+      "enum": [
+        "BAIXA",
+        "MEDIA",
+        "ALTA"
+      ]
+    },
+    "justificativa": {
+      "type": "string"
+    },
+    "modelo": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

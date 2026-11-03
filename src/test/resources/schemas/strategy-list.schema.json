@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "id",
+      "data",
+      "categoria",
+      "campanha",
+      "descricao",
+      "vigente"
+    ],
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "data": {
+        "type": "string",
+        "format": "date"
+      },
+      "categoria": {
+        "type": "string"
+      },
+      "campanha": {
+        "type": "string"
+      },
+      "descricao": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "vigente": {
+        "type": "boolean"
+      }
+    },
+    "additionalProperties": false
+  }
+}

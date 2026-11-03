@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "id",
+    "data",
+    "descricao",
+    "investimentoAdicional",
+    "lucroObtido",
+    "aumentoProdutividadePercentual",
+    "progressoPercentual"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "data": {
+      "type": "string",
+      "format": "date"
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "investimentoAdicional": {
+      "type": "number"
+    },
+    "lucroObtido": {
+      "type": "number"
+    },
+    "aumentoProdutividadePercentual": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "progressoPercentual": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

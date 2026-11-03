@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "totalProjetos",
+    "projetosEmAndamento",
+    "projetosConcluidos",
+    "investimentoTotal",
+    "lucroObtidoTotal",
+    "roiPercentual",
+    "prazoMedioRestanteDias",
+    "aumentoProdutividadeMedioPercentual",
+    "progressoMedioPercentual",
+    "porEstrategia",
+    "porProjeto"
+  ],
+  "properties": {
+    "totalProjetos": {
+      "type": "integer"
+    },
+    "projetosEmAndamento": {
+      "type": "integer"
+    },
+    "projetosConcluidos": {
+      "type": "integer"
+    },
+    "investimentoTotal": {
+      "type": "number"
+    },
+    "lucroObtidoTotal": {
+      "type": "number"
+    },
+    "roiPercentual": {
+      "type": "number"
+    },
+    "prazoMedioRestanteDias": {
+      "type": "integer"
+    },
+    "aumentoProdutividadeMedioPercentual": {
+      "type": "number"
+    },
+    "progressoMedioPercentual": {
+      "type": "number"
+    },
+    "porEstrategia": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "estrategiaId",
+          "categoria",
+          "campanha",
+          "quantidadeProjetos",
+          "investimentoTotal",
+          "lucroObtidoTotal",
+          "roiPercentual"
+        ],
+        "properties": {
+          "estrategiaId": {
+            "type": "string"
+          },
+          "categoria": {
+            "type": "string"
+          },
+          "campanha": {
+            "type": "string"
+          },
+          "quantidadeProjetos": {
+            "type": "integer"
+          },
+          "investimentoTotal": {
+            "type": "number"
+          },
+          "lucroObtidoTotal": {
+            "type": "number"
+          },
+          "roiPercentual": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "porProjeto": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "projetoId",
+          "nome",
+          "status",
+          "etapa",
+          "investimento",
+          "lucroObtido",
+          "roiPercentual",
+          "prazo",
+          "progressoPercentual"
+        ],
+        "properties": {
+          "projetoId": {
+            "type": "string"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "etapa": {
+            "type": "string"
+          },
+          "investimento": {
+            "type": "number"
+          },
+          "lucroObtido": {
+            "type": "number"
+          },
+          "roiPercentual": {
+            "type": "number"
+          },
+          "prazo": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "progressoPercentual": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
