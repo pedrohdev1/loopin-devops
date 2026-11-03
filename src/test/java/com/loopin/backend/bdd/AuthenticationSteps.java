@@ -35,7 +35,7 @@ public class AuthenticationSteps {
 
     @Quando("cadastro um novo operador")
     public void cadastroNovoOperador() {
-        email = "bdd-" + UUID.randomUUID() + "@loopin.local";
+        email = "bdd-" + UUID.randomUUID() + "@example.com";
         response = given()
                 .contentType(ContentType.JSON)
                 .body(Map.of("nome", "Usuário BDD", "email", email, "senha", senha))
@@ -87,7 +87,7 @@ public class AuthenticationSteps {
 
     @Dado("um e-mail sem usuário cadastrado")
     public void emailSemUsuarioCadastrado() {
-        email = "inexistente-" + UUID.randomUUID() + "@loopin.local";
+        email = "inexistente-" + UUID.randomUUID() + "@example.com";
     }
 
     @Quando("tento autenticar com uma senha inválida")
