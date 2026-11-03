@@ -6,7 +6,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @CucumberContextConfiguration
-@SpringBootTest(classes = LoopinBackendApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        classes = LoopinBackendApplication.class,
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "app.bootstrap-token=loopin-bdd-bootstrap-token"
+)
 @ActiveProfiles("test")
 public class CucumberSpringConfiguration {
 }

@@ -26,11 +26,6 @@ public class UserSteps {
     private final String password = "SenhaSegura123!";
     private String leaderJwt;
 
-    @Entao("o erro de API respeita o contrato JSON")
-    public void validarContratoErroApi() {
-        response.then().body(matchesJsonSchemaInClasspath("schemas/api-error.schema.json"));
-    }
-
     @Quando("cadastro um usuário pela rota pública pedindo perfil de líder")
     public void cadastroPublicoSolicitandoLider() {
         email = "publico-" + UUID.randomUUID() + "@example.com";

@@ -112,4 +112,9 @@ public class AuthenticationSteps {
     public void statusDaApi(int status) {
         response.then().statusCode(status);
     }
+
+    @Entao("o erro de API respeita o contrato JSON")
+    public void validarContratoErroApi() {
+        response.then().body(matchesJsonSchemaInClasspath("schemas/api-error.schema.json"));
+    }
 }
