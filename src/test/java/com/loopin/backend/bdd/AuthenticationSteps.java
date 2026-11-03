@@ -99,6 +99,15 @@ public class AuthenticationSteps {
                 .post("/auth/login");
     }
 
+    @Quando("tento autenticar com um endereço de e-mail inválido")
+    public void loginEmailInvalido() {
+        response = given()
+                .contentType(ContentType.JSON)
+                .body(Map.of("email", "nao-e-um-email", "senha", senha))
+                .when()
+                .post("/auth/login");
+    }
+
     @Entao("a API responde com status {int}")
     public void statusDaApi(int status) {
         response.then().statusCode(status);

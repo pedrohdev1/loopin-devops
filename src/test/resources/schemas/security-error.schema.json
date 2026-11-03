@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["status", "error", "message"],
+  "properties": {
+    "status": { "type": "integer", "enum": [401, 403] },
+    "error": { "type": "string", "minLength": 1 },
+    "message": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false
+}

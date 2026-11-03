@@ -15,3 +15,9 @@ Funcionalidade: Autenticação de usuários
     Dado um e-mail sem usuário cadastrado
     Quando tento autenticar com uma senha inválida
     Então a API responde com status 401
+    E o erro de API respeita o contrato JSON
+
+  Cenário: Rejeitar tentativa de login com e-mail inválido
+    Quando tento autenticar com um endereço de e-mail inválido
+    Então a API responde com status 400
+    E o erro de API respeita o contrato JSON
