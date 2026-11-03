@@ -15,7 +15,8 @@ import java.util.UUID;
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notBlankString;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 
 public class AuthenticationSteps {
     @LocalServerPort
@@ -46,7 +47,8 @@ public class AuthenticationSteps {
     public void usuarioCriadoComPerfil(String perfil) {
         response.then()
                 .statusCode(201)
-                .body("id", notBlankString())
+                .body("id", notNullValue())
+                .body("id", not(equalTo("")))
                 .body("email", equalTo(email))
                 .body("perfil", equalTo(perfil));
     }
@@ -65,7 +67,8 @@ public class AuthenticationSteps {
         response.then()
                 .statusCode(200)
                 .body(matchesJsonSchemaInClasspath("schemas/login-response.schema.json"))
-                .body("token", notBlankString())
+                .body("token", notNullValue())
+                .body("token", not(equalTo("")))
                 .body("tipoToken", equalTo("Bearer"));
         token = response.jsonPath().getString("token");
     }
